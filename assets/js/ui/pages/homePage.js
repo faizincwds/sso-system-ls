@@ -4,6 +4,7 @@ import { deviceService } from '../../services/deviceService.js';
 import { appService } from '../../services/appService.js';
 import { escapeHtml } from '../../utils/dom.js';
 import { relativeTime, formatDate } from '../../utils/format.js';
+import { activityService } from '../../services/activityService.js';
 
 export function render(root) {
   const user = authService.getCurrentUser();
@@ -11,6 +12,8 @@ export function render(root) {
   const devices = deviceService.getUserDevices(user.id);
   const apps = appService.getUserApps(user.id);
   const recent = historyService.getUserHistory(user.id).slice(0, 5);
+  const activities = activityService.list(user.id).slice(0, 5);
+
 
   const statCard = (label, value, icon, color) => `
     <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
@@ -53,6 +56,30 @@ export function render(root) {
             </div>
           `).join('')}
         </div>
+      </div>
+      
+        <!-- 🆕 Aktivitas Terbaru -->
+      <div class="mt-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="font-semibold text-slate-800">📊 Aktivitas Terbaru</h3>
+          <a href="#/activity" class="text-sm text-brand-600 hover:underline">Lihat semua →</a>
+        </div>
+        <ul class="divide-y divide-slate-100">
+          ${activities.length === 0 ? `
+            <li class="p-8 text-center text-slate-400 text-sm">Belum ada aktivitas</li>
+          ` : activities.map((a) => `
+            <li class="p-4 flex items-center gap-3">
+              <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-lg flex-shrink-0">
+                ${a.icon}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-slate-800 truncate">${a.label}</div>
+                <div class="text-xs text-slate-500">${a.device} · ${a.location}</div>
+              </div>
+              <div class="text-xs text-slate-400 whitespace-nowrap">${relativeTime(a.timestamp)}</div>
+            </li>
+          `).join('')}
+        </ul>
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100">

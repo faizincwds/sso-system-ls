@@ -32,7 +32,7 @@ export function mountLoginForm(root) {
 
       <p class="mt-4 text-sm text-center text-slate-600">
         Belum punya akun?
-        <a href="/register.html" class="text-brand-600 hover:underline font-medium">Daftar</a>
+        <a href="./register.html" class="text-brand-600 hover:underline font-medium">Daftar</a>
       </p>
 
       <div class="mt-5 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 leading-relaxed">
