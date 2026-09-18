@@ -21,7 +21,7 @@
     import { mountRegisterForm } from './assets/js/ui/registerForm.js';
 
     if (authService.getSession()) {
-      location.href = '/dashboard.html';
+      location.href = './dashboard.html';
     } else {
       mountRegisterForm(document.getElementById('app'));
     }

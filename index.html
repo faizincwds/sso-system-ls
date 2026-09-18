@@ -25,7 +25,7 @@
 
     // Auto-redirect jika sudah login
     if (authService.getSession()) {
-      location.href = '/dashboard.html';
+      location.href = './dashboard.html';
     } else {
       mountLoginForm(document.getElementById('app'));
     }
