@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login SSO</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-brand-500: oklch(0.65 0.2 250);
+      --color-brand-600: oklch(0.55 0.22 250);
+      --color-brand-700: oklch(0.45 0.22 250);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+  <div id="app"></div>
+
+  <script type="module">
+    import { authService } from './assets/js/services/authService.js';
+    import { mountLoginForm } from './assets/js/ui/loginForm.js';
+    import { seedIfEmpty } from './assets/js/data/seed.js';
+
+    seedIfEmpty(); // isi user demo jika kosong
+
+    // Auto-redirect jika sudah login
+    if (authService.getSession()) {
+      location.href = '/dashboard.html';
+    } else {
+      mountLoginForm(document.getElementById('app'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>App A — SSO Client</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <div id="app"></div>
+
+  <script type="module">
+    import { authService } from '../assets/js/services/authService.js';
+    import { appService } from '../assets/js/services/appService.js';
+
+    const APP_ID = 'app-a';
+    const session = authService.getSession();
+
+    // Guard: redirect ke login jika belum login
+    if (!session) {
+      location.href = '../index.html?redirect=' + encodeURIComponent(location.pathname);
+    } else {
+      const user = authService.getCurrentUser();
+      const app = appService.getApp(APP_ID);
+
+      // Auto-connect saat pertama kali dibuka
+      if (!appService.isConnected(user.id, APP_ID)) {
+        appService.connect(user.id, APP_ID);
+      } else {
+        appService.touch(user.id, APP_ID);
+      }
+
+      document.getElementById('app').innerHTML = `
+        <nav class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📊</span>
+            <span class="font-bold">App A</span>
+          </div>
+          <a href="/dashboard.html#/apps" class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg">
+            ← Kelola Aplikasi
+          </a>
+        </nav>
+
+        <main class="max-w-3xl mx-auto p-6">
+          <div class="bg-white rounded-2xl shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl">✓</div>
+              <div>
+                <h1 class="text-xl font-bold text-slate-800">Login Berhasil via SSO</h1>
+                <p class="text-sm text-slate-500">Anda masuk tanpa perlu login ulang</p>
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="text-sm text-slate-500">User Aktif</div>
+              <div class="font-bold text-slate-800">${user?.name || '-'}</div>
+              <div class="text-sm text-slate-600">${user?.email || '-'}</div>
+            </div>
+
+            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+              ✅ App A sekarang terhubung dengan akun SSO Anda. Cek di
+              <a href="/dashboard.html#/apps" class="underline font-medium">Dashboard → Aplikasi</a>.
+            </div>
+          </div>
+        </main>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard SSO</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-brand-50:  oklch(0.97 0.02 250);
+      --color-brand-500: oklch(0.65 0.2 250);
+      --color-brand-600: oklch(0.55 0.22 250);
+      --color-brand-700: oklch(0.45 0.22 250);
+    }
+  </style>
+</head>
+<body class="bg-slate-100">
+  <!-- Guard -->
+  <script type="module">
+    import { authService } from './assets/js/services/authService.js';
+    if (!authService.getSession()) {
+      location.href = '/index.html?redirect=' + encodeURIComponent(location.pathname);
+    }
+  </script>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+      class="w-64 bg-white border-r border-slate-200 flex-col fixed inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0 md:relative md:flex transition-transform duration-200 flex">
+    </aside>
+
+    <!-- Overlay mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-20 hidden md:hidden"></div>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-white border-b border-slate-200 px-4 md:px-6 h-16 flex items-center sticky top-0 z-10">
+        <div id="topbar" class="flex items-center gap-3 w-full"></div>
+      </header>
+
+      <main class="flex-1 p-4 md:p-6">
+        <div id="page-content"></div>
+      </main>
+
+      <footer class="border-t border-slate-200 bg-white px-6 py-3 text-xs text-slate-500 text-center">
+        SSO System © 2026 — Fase 1 (localStorage)
+      </footer>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script type="module">
+    import { authService } from './assets/js/services/authService.js';
+    import { deviceService } from './assets/js/services/deviceService.js';
+    import { renderSidebar } from './assets/js/ui/sidebar.js';
+    import { renderTopbar } from './assets/js/ui/topbar.js';
+    import { startRouter, registerRoute } from './assets/js/core/router.js';
+    import { showToast } from './assets/js/ui/toast.js';
+
+    import { render as homePage }      from './assets/js/ui/pages/homePage.js';
+    import { render as profilePage }   from './assets/js/ui/pages/profilePage.js';
+    import { render as securityPage }  from './assets/js/ui/pages/securityPage.js';
+    import { render as historyPage }   from './assets/js/ui/pages/historyPage.js';
+    import { render as devicesPage }   from './assets/js/ui/pages/devicesPage.js';
+    import { render as appsPage }      from './assets/js/ui/pages/appsPage.js';
+
+    // Tunggu guard selesai (guard dijalankan duluan via script terpisah)
+    const session = authService.getSession();
+    if (session) {
+      // Update lastActive perangkat ini
+      deviceService.touchCurrent(session.userId);
+
+      const user = authService.getCurrentUser();
+
+      // Render sidebar & topbar
+      renderSidebar(document.getElementById('sidebar'), user);
+      renderTopbar(document.getElementById('topbar'), user);
+
+      // Logout handler
+      document.getElementById('logout-btn')?.addEventListener('click', () => {
+        if (!confirm('Yakin logout?')) return;
+        authService.logout();
+        showToast('Berhasil logout', 'success');
+        setTimeout(() => (location.href = '/index.html'), 400);
+      });
+
+      // Mobile sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const openSidebar  = () => { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); };
+      const closeSidebar = () => { sidebar.classList.add('-translate-x-full');    overlay.classList.add('hidden'); };
+      window.addEventListener('toggle-sidebar', () => {
+        sidebar.classList.contains('-translate-x-full') ? openSidebar() : closeSidebar();
+      });
+      overlay.addEventListener('click', closeSidebar);
+
+      // Sinkron nama di sidebar/topbar jika user update profil
+      window.addEventListener('user-updated', () => {
+        const u = authService.getCurrentUser();
+        renderSidebar(document.getElementById('sidebar'), u);
+        renderTopbar(document.getElementById('topbar'), u);
+      });
+
+      // Register routes
+      registerRoute('/',         homePage);
+      registerRoute('/profile',  profilePage);
+      registerRoute('/security', securityPage);
+      registerRoute('/history',  historyPage);
+      registerRoute('/devices',  devicesPage);
+      registerRoute('/apps',     appsPage);
+
+      // Start router
+      startRouter('/');
+    }
+  </script>
+</body>
+</html>
