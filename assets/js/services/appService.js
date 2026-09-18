@@ -2,8 +2,8 @@ import { storage, KEYS } from '../core/storage.js';
 
 // Daftar aplikasi yang terdaftar di SSO (mirip tabel `apps` di MySQL)
 export const REGISTERED_APPS = [
-  { id: 'app-a', name: 'App A', description: 'Contoh aplikasi klien', color: 'blue',   icon: '📊', url: 'apps/app-a.html' },
-  { id: 'app-b', name: 'App B', description: 'Contoh aplikasi klien', color: 'green',  icon: '📈', url: 'apps/app-b.html' },
+  { id: 'app-a', name: 'App A', description: 'Contoh aplikasi klien', color: 'blue',   icon: '📊', url: './apps/app-a.html' },
+  { id: 'app-b', name: 'App B', description: 'Contoh aplikasi klien', color: 'green',  icon: '📈', url: './apps/app-b.html' },
 ];
 
 export const appService = {
