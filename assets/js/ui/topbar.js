@@ -22,9 +22,15 @@ export function renderTopbar(container, user) {
 
   // Update title per route
   const titles = {
-    '/': 'Dashboard', '/profile': 'Profil', '/security': 'Keamanan',
-    '/history': 'Riwayat Login', '/devices': 'Perangkat Aktif', '/apps': 'Aplikasi Terhubung',
+    '/': 'Dashboard',
+    '/profile': 'Profil',
+    '/security': 'Keamanan',
+    '/history': 'Riwayat Login',
+    '/activity': 'Riwayat Aktivitas',   // 🆕
+    '/devices': 'Perangkat Aktif',
+    '/apps': 'Aplikasi Terhubung',
   };
+
   window.addEventListener('route-change', (e) => {
     const t = document.getElementById('page-title');
     if (t) t.textContent = titles[e.detail.path] || 'Dashboard';

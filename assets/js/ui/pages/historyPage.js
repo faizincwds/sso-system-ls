@@ -1,5 +1,6 @@
 import { authService } from '../../services/authService.js';
 import { historyService } from '../../services/historyService.js';
+import { activityService, ACTIVITY_TYPES } from '../../services/activityService.js';
 import { showToast } from '../toast.js';
 import { escapeHtml } from '../../utils/dom.js';
 import { formatDate } from '../../utils/format.js';
@@ -94,6 +95,8 @@ export function render(root) {
     root.querySelector('#clear-history')?.addEventListener('click', () => {
       if (!confirm('Yakin hapus semua riwayat login?')) return;
       historyService.clearUserHistory(user.id);
+      // 🆕 Catat aktivitas
+      activityService.log(user.id, ACTIVITY_TYPES.HISTORY_CLEAR);
       showToast('Riwayat berhasil dihapus', 'success');
       draw();
     });

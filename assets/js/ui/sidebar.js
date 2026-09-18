@@ -1,12 +1,14 @@
 import { escapeHtml } from '../utils/dom.js';
 
+// assets/js/ui/sidebar.js
 const MENU = [
-  { path: '/',         label: 'Dashboard', icon: '🏠' },
-  { path: '/profile',  label: 'Profil',    icon: '👤' },
-  { path: '/security', label: 'Keamanan',  icon: '🔒' },
+  { path: '/',         label: 'Dashboard',     icon: '🏠' },
+  { path: '/profile',  label: 'Profil',        icon: '👤' },
+  { path: '/security', label: 'Keamanan',      icon: '🔒' },
   { path: '/history',  label: 'Riwayat Login', icon: '📋' },
-  { path: '/devices',  label: 'Perangkat', icon: '💻' },
-  { path: '/apps',     label: 'Aplikasi',  icon: '🔌' },
+  { path: '/activity', label: 'Aktivitas',     icon: '📊' },   // 🆕
+  { path: '/devices',  label: 'Perangkat',     icon: '💻' },
+  { path: '/apps',     label: 'Aplikasi',      icon: '🔌' },
 ];
 
 export function renderSidebar(container, user) {

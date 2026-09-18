@@ -10,6 +10,7 @@ export const CONFIG = {
     LOGIN_HISTORY:  'sso_login_history',  
     DEVICES:        'sso_devices',        
     CONNECTED_APPS: 'sso_connected_apps',
+    ACTIVITY_LOG:   'sso_activity_log',
     DEVICES_ID: 'sso_device_id',
   },
   SESSION_TTL: 60 * 60 * 1000, // 1 jam (ms)

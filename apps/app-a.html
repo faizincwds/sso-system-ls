@@ -11,23 +11,28 @@
   <script type="module">
     import { authService } from '../assets/js/services/authService.js';
     import { appService } from '../assets/js/services/appService.js';
+    import { activityService, ACTIVITY_TYPES } from '../assets/js/services/activityService.js';
 
-    const APP_ID = 'app-a';
-    const session = authService.getSession();
+  const APP_ID = 'app-a';
+  const session = authService.getSession();
 
-    // Guard: redirect ke login jika belum login
-    if (!session) {
-      location.href = '../index.html?redirect=' + encodeURIComponent(location.pathname);
-    } else {
-      const user = authService.getCurrentUser();
-      const app = appService.getApp(APP_ID);
+  if (!session) {
+    location.href = '../index.html?redirect=' + encodeURIComponent(location.pathname);
+  } else {
+    const user = authService.getCurrentUser();
+    const app = appService.getApp(APP_ID);
 
-      // Auto-connect saat pertama kali dibuka
-      if (!appService.isConnected(user.id, APP_ID)) {
+    if (!appService.isConnected(user.id, APP_ID)) {
         appService.connect(user.id, APP_ID);
       } else {
         appService.touch(user.id, APP_ID);
       }
+  
+      // 🆕 Catat aktivitas buka aplikasi
+      activityService.log(user.id, ACTIVITY_TYPES.APP_OPEN, {
+        description: `Buka aplikasi: ${app?.name || APP_ID}`,
+        metadata: { appName: app?.name || APP_ID },
+      });
 
       document.getElementById('app').innerHTML = `
         <nav class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
@@ -65,5 +70,8 @@
       `;
     }
   </script>
+
+
 </body>
 </html>
+

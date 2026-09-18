@@ -1,5 +1,6 @@
 import { storage, KEYS } from '../core/storage.js';
 import { getBrowserInfo, fakeIp, fakeLocation, getDeviceId } from '../utils/device.js';
+import { activityService, ACTIVITY_TYPES } from './activityService.js';
 
 export const deviceService = {
   // Dipanggil saat login sukses
@@ -56,16 +57,32 @@ export const deviceService = {
 
   revoke(deviceId) {
     const all = storage.get(KEYS.DEVICES) || [];
+    const target = all.find((d) => d.id === deviceId);
     storage.set(KEYS.DEVICES, all.filter((d) => d.id !== deviceId));
+
+    // 🆕 Catat aktivitas
+    if (target) {
+      activityService.log(target.userId, ACTIVITY_TYPES.DEVICE_REVOKE, {
+        description: `Logout perangkat: ${target.name}`,
+        metadata: { deviceName: target.name },
+      });
+    }
   },
 
   revokeAllExceptCurrent(userId) {
     const all = storage.get(KEYS.DEVICES) || [];
     const currentId = getDeviceId();
+    const count = all.filter((d) => d.userId === userId && d.deviceId !== currentId).length;
     storage.set(
       KEYS.DEVICES,
       all.filter((d) => d.userId !== userId || d.deviceId === currentId)
     );
+
+    // 🆕 Catat aktivitas
+    activityService.log(userId, ACTIVITY_TYPES.DEVICE_REVOKE_ALL, {
+      description: `Logout semua perangkat lain (${count} perangkat)`,
+      metadata: { count },
+    });
   },
 
   removeCurrent(userId) {

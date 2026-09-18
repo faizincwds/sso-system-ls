@@ -1,4 +1,6 @@
 import { storage, KEYS } from '../core/storage.js';
+import { activityService, ACTIVITY_TYPES } from './activityService.js';
+
 
 // Daftar aplikasi yang terdaftar di SSO (mirip tabel `apps` di MySQL)
 export const REGISTERED_APPS = [
@@ -32,22 +34,46 @@ export const appService = {
   // Dipanggil saat user pertama kali membuka app
   connect(userId, appId) {
     const all = storage.get(KEYS.CONNECTED_APPS) || [];
+    const app = this.getApp(appId);
     const existing = all.find((c) => c.userId === userId && c.appId === appId);
+
     if (existing) {
       existing.lastAccess = Date.now();
       storage.set(KEYS.CONNECTED_APPS, all);
       return existing;
     }
+
     const entry = {
       id: crypto.randomUUID(),
-      userId,
-      appId,
+      userId, appId,
       connectedAt: Date.now(),
       lastAccess: Date.now(),
       scopes: ['profile', 'email'],
     };
     storage.set(KEYS.CONNECTED_APPS, [...all, entry]);
+
+    // 🆕 Catat aktivitas connect
+    activityService.log(userId, ACTIVITY_TYPES.APP_CONNECT, {
+      description: `Hubungkan aplikasi: ${app?.name || appId}`,
+      metadata: { appName: app?.name || appId },
+    });
+
     return entry;
+  },
+
+  disconnect(userId, appId) {
+    const all = storage.get(KEYS.CONNECTED_APPS) || [];
+    const app = this.getApp(appId);
+    storage.set(
+      KEYS.CONNECTED_APPS,
+      all.filter((c) => !(c.userId === userId && c.appId === appId))
+    );
+
+    // 🆕 Catat aktivitas disconnect
+    activityService.log(userId, ACTIVITY_TYPES.APP_DISCONNECT, {
+      description: `Cabut akses: ${app?.name || appId}`,
+      metadata: { appName: app?.name || appId },
+    });
   },
 
   touch(userId, appId) {
@@ -57,14 +83,6 @@ export const appService = {
       found.lastAccess = Date.now();
       storage.set(KEYS.CONNECTED_APPS, all);
     }
-  },
-
-  disconnect(userId, appId) {
-    const all = storage.get(KEYS.CONNECTED_APPS) || [];
-    storage.set(
-      KEYS.CONNECTED_APPS,
-      all.filter((c) => !(c.userId === userId && c.appId === appId))
-    );
   },
 
   disconnectAll(userId) {

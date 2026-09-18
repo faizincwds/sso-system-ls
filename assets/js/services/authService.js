@@ -13,6 +13,8 @@ import { generateToken, verifyToken } from '../core/token.js';
 import { CONFIG } from '../config/constants.js';
 import { historyService } from './historyService.js';
 import { deviceService } from './deviceService.js';
+import { activityService, ACTIVITY_TYPES } from './activityService.js';
+
 
 export const authService = {
   async register({ email, password, name }) {
@@ -31,21 +33,19 @@ export const authService = {
     storage.set(KEYS.USERS, [...users, user]);
     return { id: user.id, email: user.email, name: user.name };
   },
-
+  
   async login({ email, password }) {
-    const emailLower = email.toLowerCase();
     const users = storage.get(KEYS.USERS) || [];
-    const user = users.find((u) => u.email === emailLower);
+    const user = users.find((u) => u.email === email.toLowerCase());
 
-    // Log failed attempt (user tidak ada)
     if (!user) {
-      historyService.add({ userId: null, email: emailLower, status: 'failed' });
+      historyService.add({ userId: null, email, status: 'failed' });
       throw new Error('Email atau password salah');
     }
 
     const ok = await verifyPassword(password, user.salt, user.hash);
     if (!ok) {
-      historyService.add({ userId: user.id, email: emailLower, status: 'failed' });
+      historyService.add({ userId: user.id, email, status: 'failed' });
       throw new Error('Email atau password salah');
     }
 
@@ -56,18 +56,25 @@ export const authService = {
       expiresAt: Date.now() + CONFIG.SESSION_TTL,
     });
 
-    historyService.add({ userId: user.id, email: emailLower, status: 'success' });
+    historyService.add({ userId: user.id, email, status: 'success' });
     deviceService.register(user.id);
+
+    // 🆕 Catat aktivitas
+    activityService.log(user.id, ACTIVITY_TYPES.LOGIN);
 
     return { token, user: { id: user.id, email: user.email, name: user.name } };
   },
 
   logout() {
     const session = this.getSession();
-    if (session) deviceService.removeCurrent(session.userId);
+    if (session) {
+      // 🆕 Catat aktivitas SEBELUM hapus session
+      activityService.log(session.userId, ACTIVITY_TYPES.LOGOUT);
+      deviceService.removeCurrent(session.userId);
+    }
     storage.remove(KEYS.SESSION);
   },
-
+ 
   getSession() {
     const session = storage.get(KEYS.SESSION);
     if (!session) return null;
@@ -91,18 +98,24 @@ export const authService = {
     return !!this.getSession();
   },
 
-  // ============== Update Profile ==============
   async updateProfile(userId, { name }) {
     const users = storage.get(KEYS.USERS) || [];
     const idx = users.findIndex((u) => u.id === userId);
     if (idx === -1) throw new Error('User tidak ditemukan');
+
+    const oldName = users[idx].name;
     users[idx].name = name.trim();
     users[idx].updatedAt = Date.now();
     storage.set(KEYS.USERS, users);
+
+    // 🆕 Catat aktivitas
+    activityService.log(userId, ACTIVITY_TYPES.PROFILE_UPDATE, {
+      metadata: { oldName, newName: name.trim() },
+    });
+
     return { id: users[idx].id, email: users[idx].email, name: users[idx].name };
   },
 
-  // ============== Change Password ==============
   async changePassword(userId, oldPassword, newPassword) {
     const users = storage.get(KEYS.USERS) || [];
     const idx = users.findIndex((u) => u.id === userId);
@@ -117,6 +130,11 @@ export const authService = {
     users[idx].salt = salt;
     users[idx].passwordChangedAt = Date.now();
     storage.set(KEYS.USERS, users);
+
+    // 🆕 Catat aktivitas
+    activityService.log(userId, ACTIVITY_TYPES.PASSWORD_CHANGE);
+
     return true;
   },
+  
 };
