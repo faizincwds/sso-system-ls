@@ -46,7 +46,7 @@ export function render(root) {
                       </div>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                      <a href="./${app?.url}" target="_blank"
+                      <a href="${app?.url}" target="_blank"
                         class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-center">
                         Buka
                       </a>
@@ -86,7 +86,7 @@ export function render(root) {
                       ✓ Sudah terhubung
                     </div>
                   ` : `
-                    <a href="./${app.url}"
+                    <a href="${app.url}"
                       class="block text-center text-sm bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition">
                       Hubungkan
                     </a>
