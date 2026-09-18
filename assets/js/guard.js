@@ -7,7 +7,7 @@ import { authService } from './services/authService.js';
 export function requireAuth() {
   if (!authService.isLoggedIn()) {
     const redirect = encodeURIComponent(location.pathname);
-    location.href = `/index.html?redirect=${redirect}`;
+    location.href = `./index.html?redirect=${redirect}`;
     return false;
   }
   return true;
@@ -15,7 +15,7 @@ export function requireAuth() {
 
 export function requireGuest() {
   if (authService.isLoggedIn()) {
-    location.href = '/dashboard.html';
+    location.href = './dashboard.html';
     return false;
   }
   return true;

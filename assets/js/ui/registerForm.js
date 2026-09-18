@@ -57,7 +57,7 @@ export function mountRegisterForm(root) {
       setLoading(btn, true, 'Mendaftar...');
       await authService.register(data);
       showToast('Pendaftaran berhasil! Silakan login.', 'success');
-      setTimeout(() => (location.href = '/index.html'), 800);
+      setTimeout(() => (location.href = './index.html'), 800);
     } catch (error) {
       showToast(error.message, 'error');
     } finally {

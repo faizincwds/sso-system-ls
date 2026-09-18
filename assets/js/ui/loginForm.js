@@ -59,7 +59,7 @@ export function mountLoginForm(root) {
       showToast('Login berhasil!', 'success');
 
       const redirect = new URLSearchParams(location.search).get('redirect');
-      setTimeout(() => (location.href = redirect || '/dashboard.html'), 400);
+      setTimeout(() => (location.href = redirect || './dashboard.html'), 400);
     } catch (error) {
       showToast(error.message, 'error');
     } finally {
