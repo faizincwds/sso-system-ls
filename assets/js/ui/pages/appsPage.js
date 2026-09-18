@@ -88,7 +88,7 @@ export function render(root) {
                   ` : `
                     <a href="${app.url}"
                       class="block text-center text-sm bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg font-medium transition">
-                      Hubungkan (${app.url})
+                      Hubungkan
                     </a>
                   `}
                 </div>
